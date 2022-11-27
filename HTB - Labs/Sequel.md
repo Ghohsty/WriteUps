@@ -2,10 +2,10 @@
 layout: default
 title: Sequel
 parent: Hack the Box Labs
-nav_order: 1
+nav_order: 14
 ---
 
-![[Pasted image 20220222194838.png]]
+![Sequel](Pasted image 20220222194838.png)
 
 NMap Scan
 ```

@@ -1,3 +1,10 @@
+---
+layout: default
+title: Armageddon
+parent: Hack the Box Labs
+nav_order: 1
+---
+
 # Discovery
 ## Trusty NMAP Scan:
 ```bash
@@ -34,7 +41,8 @@ Nmap done: 1 IP address (1 host up) scanned in 11.59 seconds
 
 ## Wappalyzer / GoBuster
 Checking the site we have a login page. Wappalyzer does some of the heavy lifting for us:
-![[Pasted image 20210422214450.png]]
+
+![1](Pasted image 20210422214450.png)
 
 Queued up gobuster for directory enumeration in the background:
 ```bash
@@ -251,7 +259,7 @@ brucetherealadmin
 [brucetherealadmin@armageddon ~]$
 ```
 
-# Privelege Escalation
+# Privilege Escalation
 Starting with the most obvious, what can I run as root?
 ```bash
 [brucetherealadmin@armageddon ~]$ sudo -l
@@ -275,7 +283,7 @@ centos  7
 kernel  3.10.0-1160.6.1.el7.x86_64
 ```
 
-# Failed Privelege Escalation
+# Failed Privilege Escalation
 ## CVE-2019-7304
 Searching for Snap Vulnerabilities, we identify [this article](https://www.helpnetsecurity.com/2019/02/13/cve-2019-7304/) pointing us to this CVE-2019-7304, leading to a [github repository](https://github.com/initstring/dirty_sock) containing a python script for exploitation.
 Using version2 (which does not require registering an account and a private key) results in the following:

