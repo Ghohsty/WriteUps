@@ -1,7 +1,7 @@
 ---
-title: Hack the Box Labs
+title: Hack the Box OSCP Like
 layout: default
-nav_order: 2
+nav_order: 3
 has_children: true
 ---
 
@@ -9,6 +9,6 @@ has_children: true
 
 Please see the navigation to the left for individual boxes.  
 
-There are no live boxes published here, only machines that have since been 'retired'. I refer to them as Labs on this site to indicate that they were live at the time I was working through them - this means that no public write ups were available as I worked on completing them with very little help from the HTB community (forums).
+This section contains Hack The Box machines taken from [TJ Null's OSCP Like](https://docs.google.com/spreadsheets/d/1dwSMIAPIam0PuRBkCiDI88pU3yzrqqHkDtBngUHNCw8/edit#gid=1839402159) List.
 
-Hack The Box has very strict policies regarding the publication of walkthroughs for live machines - I attend to adhere to those requirements.
+I will be working through these as I prepare for OSCP.

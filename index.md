@@ -9,7 +9,7 @@ I am currently in the process of studying to complete the [OSCP](https://www.off
 My hope is that this site will provide some educational material for those working through these various CTF challenges, while also serving as a reference for myself and others. Outside of that, it will also serve as a good way for me to practice collating legible write-ups and walkthroughs to simulate actual engagements. While I understand that 'real world' engagements are completely separate from CTF challenges, there is some correlation in regards to how information is presented and findings are accurately/legibly demonstrated in written form.
 <br>
 
-!! **Note that there are an @ghohsty youtube and @ghohsty instagram profile out there that are not mine.**
+> Note that there are an @ghohsty youtube and @ghohsty instagram profile out there that are not mine.
 
 Some of my credentials:
 + CISSP (Certified Information Security Systems Professional)
