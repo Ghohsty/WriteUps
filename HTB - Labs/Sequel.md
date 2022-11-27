@@ -1,9 +1,16 @@
+---
+layout: default
+title: Sequel
+parent: Hack the Box Labs
+nav_order: 1
+---
+
 ![[Pasted image 20220222194838.png]]
 
 NMap Scan
 ```
 ┌──(ghohst㉿kali)-[~]
-└─$ cat sequel.txt 
+└─$ cat sequel.txt
 Starting Nmap 7.92 ( https://nmap.org ) at 2022-02-22 19:30 MST
 Nmap scan report for 10.129.50.73
 Host is up (0.060s latency).
@@ -14,7 +21,7 @@ PORT     STATE SERVICE VERSION
 |_ssl-cert: ERROR: Script execution failed (use -d to debug)
 |_tls-nextprotoneg: ERROR: Script execution failed (use -d to debug)
 |_tls-alpn: ERROR: Script execution failed (use -d to debug)
-| mysql-info: 
+| mysql-info:
 |   Protocol: 10
 |   Version: 5.5.5-10.3.27-MariaDB-0+deb10u1
 |   Thread ID: 65
