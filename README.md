@@ -1,6 +1,6 @@
-# just-the-docs-template
+# Information
 
-This site generated from a 'Just The Docs' Template (see the links below).  
+This site generated from a 'Just The Docs' Template.  
 I do not take credit for any of the html/css/formatting.  
 The information provided here is for informational purposes only. I do not condone any illegal activity relating to 'hacking'.
 
