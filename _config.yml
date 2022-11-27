@@ -1,8 +1,5 @@
-title: Just the Docs Template
-description: A starter template for a Jeykll site using the Just the Docs theme!
+title: Ethical Hacking Write Ups
+description: A repositoy for Hack the Box, Try Hack Me, and other Ethical Hacking Exercises
 theme: just-the-docs
 
-url: https://just-the-docs.github.io
-
-aux_links:
-  Template Repository: https://github.com/just-the-docs/just-the-docs-template
+url: https://ghohsty.github.io/WriteUps/
