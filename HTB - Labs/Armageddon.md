@@ -39,11 +39,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 11.59 seconds
 ```
 
-## Wappalyzer / GoBuster
-Checking the site we have a login page. Wappalyzer does some of the heavy lifting for us:
-
-![1](Pasted image 20210422214450.png)
-
+## GoBuster
 Queued up gobuster for directory enumeration in the background:
 ```bash
 ┌──(root💀kali)-[/home/ghohst/Documents/HTB/arma]
@@ -180,7 +176,7 @@ Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
 
 Fortunately, the man page was in my face enough to notice that I can execute command via one-liners with the -e switch, so we'll try to figure out if there's an actual user I can connect with to mySQL instead of this apache service (though, it will still need to be locally, as the port isn't open externally).
 
-!!! Careful with syntax here, -p switch requires the password to be on top of it e.g. -pPassword
+> Careful with syntax here, -p switch requires the password to be on top of it e.g. -pPassword
 
 This BS with the password needing to be right up on the -p switch caught me off guard for a little bit and required a re-read of the dev.mysql.com page I mentioned previously:
 ```bash
@@ -189,7 +185,7 @@ Enter password: ERROR 1045 (28000): Access denied for user 'drupaluser'@'localho
 armageddon.htb>> mysql -h localhost -u drupaluser -pCQHEy@9M*m23gBVj -D drupal -e "show tables like 'users';"
 ```
 
-!! For a cheat sheet of mysql commands check this link: [MySQL Commands](http://g2pc1.bu.edu/~qzpeng/manual/MySQL%20Commands.htm)
+> For a cheat sheet of mysql commands check this link: [MySQL Commands](http://g2pc1.bu.edu/~qzpeng/manual/MySQL%20Commands.htm)
 
 Bruce, the real admin, is present:
 ```bash

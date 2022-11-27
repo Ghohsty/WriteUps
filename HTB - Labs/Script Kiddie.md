@@ -92,8 +92,6 @@ Excerpts from ['Hacking Flask Applications'](https://medium.com/swlh/hacking-fla
 ## MSFVenom Templates
 With this information we move on to other avenues. Re-review of the site, re-review of what these inputs are performing / executing. Generated some windows payloads, noted that linux always errors out, confirmed that Android payloads generate. Nmap scan isn't accepting any additional flags/input, searchsploit input doesn't necessarily have any flags that will get us anywhere (query of a 3rd party). Template upload really seems like the only file upload method we have, so we start digging into that.
 
-![[Pasted image 20210503220424.png]]
-
 We do have the ability to include templates, so I began researching what I can potentially do to manipulate this ability. Some relevant articles from the research:
 [Rapid7](https://www.rapid7.com/db/modules/exploit/unix/fileformat/metasploit_msfvenom_apk_template_cmd_injection/)
 [GitHub](https://github.com/justinsteven/advisories/blob/master/2020_metasploit_msfvenom_apk_template_cmdi.md)

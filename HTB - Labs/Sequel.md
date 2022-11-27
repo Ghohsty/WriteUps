@@ -5,9 +5,7 @@ parent: Hack the Box Labs
 nav_order: 14
 ---
 
-![Sequel](Pasted image 20220222194838.png)
-
-NMap Scan
+# NMap Scan
 ```
 ┌──(ghohst㉿kali)-[~]
 └─$ cat sequel.txt
@@ -80,7 +78,7 @@ MariaDB [htb]> select * from config;
 |  2 | security              | default                          |
 |  3 | auto_logon            | false                            |
 |  4 | max_size              | 2M                               |
-|  5 | flag                  | 7b4bec00d1a39e3dd4e021ec3d915da8 |
+|  5 | flag                  | 7bxxxxxxxxxxxxxxxxxxxxxxxxxxxxx8 |
 |  6 | enable_uploads        | false                            |
 |  7 | authentication_method | radius                           |
 +----+-----------------------+----------------------------------+
