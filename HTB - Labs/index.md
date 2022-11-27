@@ -1,17 +1,14 @@
 ---
-title: Home
-layout: home
+title: Hack the Box Labs
+layout: default
+nav_order: 2
+has_children: true
 ---
 
-## Welcome!
-I am currently in the process of studying to complete the [OSCP](https://www.offensive-security.com/pwk-oscp/) (Offensive Security Certified Professional) course and exam. While gearing up for this experience I had been utilizing tools like OneNote and Obsidian to document my progress, but also realized that I should be publishing them to the web in order to submit my write-ups to various sites (e.g. [@hackthebox](https://hackthebox.eu), [@tryhackme](https://tryhackme.com), etc). This was my first foray into web hosting and web design, even the process of putting this together was a learning experience.
-<br><br>
-My hope is that this site will provide some educational material for those working through these various CTF challenges, while also serving as a reference for myself and others. Outside of that, it will also serve as a good way for me to practice collating legible write-ups and walkthroughs to simulate actual engagements. While I understand that 'real world' engagements are completely separate from CTF challenges, there is some correlation in regards to how information is presented and findings are accurately/legibly demonstrated in written form.
-<br>
+## Hack The Box - Labs
 
-!! **Note that there are an @ghohsty youtube and @ghohsty instagram profile out there that are not mine.**
+Please see the navigation to the left for individual boxes.  
 
-Some of my credentials:
-+ CISSP (Certified Information Security Systems Professional)
-+ CySA (CompTIA Cybersecurity Analyst)
-+ eJPT (eLearn Security Junior Penetration Tester)
+There are no live boxes published here, only machines that have since been 'retired'. I refer to them as Labs on this site to indicate that they were live at the time I was working through them - this means that no public write ups were available as I worked on completing them with very little help from the HTB community (forums).
+
+Hack The Box has very strict policies regarding the publication of walkthroughs for live machines - I attend to adhere to those requirements.
