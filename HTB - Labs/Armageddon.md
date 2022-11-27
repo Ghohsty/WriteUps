@@ -3,6 +3,7 @@ layout: default
 title: Armageddon
 parent: Hack the Box Labs
 nav_order: 1
+published: false
 ---
 
 # Discovery

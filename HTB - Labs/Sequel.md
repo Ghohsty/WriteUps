@@ -3,6 +3,7 @@ layout: default
 title: Sequel
 parent: Hack the Box Labs
 nav_order: 14
+published: false
 ---
 
 # NMap Scan
