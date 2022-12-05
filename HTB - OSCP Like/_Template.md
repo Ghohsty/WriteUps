@@ -6,5 +6,3 @@ nav_order: 11
 has_children: false
 published: false
 ---
-
-![Node](Pasted image 20220805140956.png)
