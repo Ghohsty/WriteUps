@@ -1,4 +1,4 @@
-![[Pasted image 20220206173147.png]]
+![Pasted image 20220206173147.png]
 
 #telnet
 
