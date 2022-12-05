@@ -2,11 +2,6 @@
 title: Home
 layout: home
 nav_order: 1
-callouts:
-  warning:
-    title: Note
-    color: purple
-
 ---
 
 ## Welcome!
