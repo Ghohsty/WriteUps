@@ -1,5 +1,13 @@
-![[Pasted image 20220222192252.png]]
-#sqlinjection
+---
+layout: default
+title: Appointment
+parent: HTB - Very Easy
+nav_order: 3
+published: true
+---
+![Appointment](images/Appointment.png)
+<button type="button" name="button" class="btn">#SQLi</button>
+<button type="button" name="button" class="btn">#GoBuster</button>
 
 NMAP Scan
 ```
@@ -16,7 +24,12 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 10.97 seconds
 ```
 
-Default login check on the main page (admin/admin, admin/root, etc)
+Default login check on the main page (admin/admin, admin/root, etc) produces no results.
+
+The site itself is vulnerable to a form of SQL injection whereby entering in '# and commenting out the remainder allows us to enter in any password. This is simply by luck, there happens to be an admin account and we're commenting out anything after (the password) therefore confusing the authentication and allowing us to enter and retrieve the flag.
+
+{: .note }
+I overthought it and was trying to fuzz the target. It was much easier than I had anticipated. Leaving the GoBuster scan syntax here for reference.
 
 GoBuster Scan
 Nothing useful here
@@ -48,6 +61,3 @@ http://10.129.50.78/fonts                (Status: 301) [Size: 312] [--> http://1
 2022/02/22 19:16:19 Finished
 ===============================================================
 ```
-
-- The site itself is vulnerable to a form of SQL injection whereby entering in '# and commenting out the remainder allows us to enter in any password. This is simply by luck, there happens to be an admin account and we're commenting out anything after (the password) therefore confusing the authentication and allowing us to enter
-![[Pasted image 20220222192215.png]]

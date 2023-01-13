@@ -1,8 +1,14 @@
-![Pasted image 20220206173147.png]
+---
+layout: default
+title: Meow
+parent: HTB - Very Easy
+nav_order: 1
+published: true
+---
+![Meow](images/Meow.png)
+<button type="button" name="button" class="btn">#telnet</button>
 
-#telnet
-
-Very Easy. Telnet was open (as determined by nmap scan). Connected as the default telent user (root) and no password was required. Ran dir, cat'd out results, there's the flag.
+Very Easy. Telnet was open (as determined by nmap scan). Connected as the default telnet user (root) and no password was required. Ran dir, cat'd out results, there's the flag.
 
 ```
 ┌──(ghohst㉿kali)-[~/Documents]
@@ -62,5 +68,5 @@ Last login: Mon Sep  6 15:15:23 UTC 2021 from 10.10.14.18 on pts/0
 root@Meow:~# dir
 flag.txt  snap
 root@Meow:~# cat flag.txt
-b40abdfe23665f766f9c61ecba8a4c19
+-redacted-
 ```

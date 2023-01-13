@@ -1,8 +1,16 @@
-![[Pasted image 20220206175322.png]]
+---
+layout: default
+title: Dancing
+parent: HTB - Very Easy
+nav_order: 2
+published: true
+---
+![Dancing](images/Dancing.png)
+<button type="button" name="button" class="btn">#smb</button>
 
-#SMB
 Simple SMB Connection (anonymous)
 
+# NMAP Scan
 ```
 ┌──(ghohst㉿kali)-[~]
 └─$ nmap -sC -sV 10.129.132.70 > dancing.txt
@@ -30,7 +38,10 @@ Host script results:
 
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 22.70 seconds
+```
 
+# SMB Connection
+```
 ┌──(ghohst㉿kali)-[~]
 └─$ smbclient -L \10.129.132.70
 Enter WORKGROUP\ghohst's password: 
@@ -44,7 +55,10 @@ Enter WORKGROUP\ghohst's password:
 Reconnecting with SMB1 for workgroup listing.
 do_connect: Connection to 10.129.132.70 failed (Error NT_STATUS_RESOURCE_NAME_NOT_FOUND)
 Unable to connect with SMB1 -- no workgroup available
-                                                                                                              
+```        
+
+Disconnected from root \ and reconnected to 'WorkShares' and downloaded 'via get' to retrieve the flag:
+```    
 ┌──(ghohst㉿kali)-[~]
 └─$ smbclient \\\\10.129.132.70\\WorkShares
 Enter WORKGROUP\ghohst's password: 
