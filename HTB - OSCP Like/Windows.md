@@ -1,8 +1,9 @@
 ---
-title: Windows - Hack the Box OSCP Like
+title: Windows
 layout: default
 has_children: true
 has_toc: false
+parent: Hack the Box OSCP Like
 ---
 
 ## Hack The Box - Labs
