@@ -3,7 +3,7 @@ layout: default
 title: Dancing
 parent: HTB - Very Easy
 nav_order: 2
-published: true
+published: false
 ---
 ![Dancing](images/Dancing.png)
 <button type="button" name="button" class="btn">#smb</button>

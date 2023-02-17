@@ -3,7 +3,7 @@ layout: default
 title: Meow
 parent: HTB - Very Easy
 nav_order: 1
-published: true
+published: false
 ---
 ![Meow](images/Meow.png)
 <button type="button" name="button" class="btn">#telnet</button>
